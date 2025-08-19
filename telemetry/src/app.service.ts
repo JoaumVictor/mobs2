@@ -6,7 +6,7 @@ import {
 import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
 import { firstValueFrom } from "rxjs";
-import { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 
 export interface TelemetryData {
   latitude: number;
@@ -61,13 +61,12 @@ export class AppService {
       return true;
     } catch (error) {
       if (
-        error instanceof AxiosError &&
+        isAxiosError(error) &&
         error.response &&
         error.response.status === 404
       ) {
         return false;
       }
-      // Se for qualquer outro erro, lançamos uma exceção
       throw new InternalServerErrorException(
         "Erro ao se comunicar com o servidor Laravel."
       );
