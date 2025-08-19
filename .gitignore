@@ -1,0 +1,21 @@
+# Ignorar as pastas de dependências
+node_modules/
+vendor/
+
+# Ignorar arquivos de ambiente
+.env
+.env.testing
+
+# Ignorar o cache do Laravel
+/storage/*.key
+/public/build
+/public/storage
+.env.production
+.env.local
+/vendor
+/storage/app/public
+/bootstrap/cache
+/public/storage
+/public/assets
+/public/build
+/public/hot
