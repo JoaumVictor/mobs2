@@ -1,4 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from "@nestjs/common";
+import { HttpService } from "@nestjs/axios";
+import { ConfigService } from "@nestjs/config";
+import { firstValueFrom } from "rxjs";
+import { AxiosError } from "axios";
 
 export interface TelemetryData {
   latitude: number;
@@ -11,18 +19,23 @@ export interface TelemetryData {
 @Injectable()
 export class AppService {
   private readonly vehicleTelemetry: Record<string, TelemetryData> = {};
+  private readonly laravelApiUrl: string;
 
-  constructor() {
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
+  ) {
+    const laravelApiUrl = this.configService.get<string>("LARAVEL_API_URL");
+    if (!laravelApiUrl) {
+      throw new Error(
+        "LARAVEL_API_URL is not defined in the environment variables."
+      );
+    }
+    this.laravelApiUrl = laravelApiUrl;
     this.startTelemetrySimulation();
   }
 
   private startTelemetrySimulation() {
-    ["ABC-1234", "XYZ-9876", "DEF-5678", "GHI-4321", "JKL-9123"].forEach(
-      (placa) => {
-        this.vehicleTelemetry[placa] = this.generateRandomData();
-      }
-    );
-
     setInterval(() => {
       Object.keys(this.vehicleTelemetry).forEach((placa) => {
         this.vehicleTelemetry[placa] = this.generateRandomData();
@@ -41,7 +54,39 @@ export class AppService {
     };
   }
 
-  getTelemetryData(vehicleId: string): TelemetryData | undefined {
-    return this.vehicleTelemetry[vehicleId];
+  private async checkVehicleExists(plate: string): Promise<boolean> {
+    try {
+      const url = `${this.laravelApiUrl}/api/vehicles/${plate}`;
+      await firstValueFrom(this.httpService.get(url));
+      return true;
+    } catch (error) {
+      if (
+        error instanceof AxiosError &&
+        error.response &&
+        error.response.status === 404
+      ) {
+        return false;
+      }
+      // Se for qualquer outro erro, lançamos uma exceção
+      throw new InternalServerErrorException(
+        "Erro ao se comunicar com o servidor Laravel."
+      );
+    }
+  }
+
+  async getTelemetryData(plate: string): Promise<TelemetryData | undefined> {
+    const vehicleExists = await this.checkVehicleExists(plate);
+
+    if (!vehicleExists) {
+      throw new NotFoundException(
+        `Veículo com a placa "${plate}" não encontrado.`
+      );
+    }
+
+    if (!this.vehicleTelemetry[plate]) {
+      this.vehicleTelemetry[plate] = this.generateRandomData();
+    }
+
+    return this.vehicleTelemetry[plate];
   }
 }

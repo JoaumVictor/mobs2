@@ -12,14 +12,11 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get("/:vehicleId")
-  getTelemetry(@Param("vehicleId") vehicleId: string): TelemetryData {
-    const telemetryData = this.appService.getTelemetryData(vehicleId);
-    if (!telemetryData) {
-      throw new HttpException(
-        "Telemetry data not found for this vehicle",
-        HttpStatus.NOT_FOUND
-      );
-    }
+  async getTelemetry(
+    @Param("vehicleId") vehicleId: string
+  ): Promise<TelemetryData | undefined> {
+    const telemetryData = await this.appService.getTelemetryData(vehicleId);
+    // A validação já é feita no service, então aqui você pode retornar os dados
     return telemetryData;
   }
 }
