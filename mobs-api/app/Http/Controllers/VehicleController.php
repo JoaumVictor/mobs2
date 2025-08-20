@@ -6,12 +6,36 @@ use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @OA\Tag(
+ * name="Veículos",
+ * description="Endpoints para gerenciar veículos"
+ * )
+ */
+
 class VehicleController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     * path="/vehicles",
+     * operationId="getAllVehicles",
+     * tags={"Veículos"},
+     * summary="Obtém a lista de todos os veículos",
+     * description="Retorna um array com todos os veículos cadastrados.",
+     * security={{"bearerAuth":{}}},
+     * @OA\Response(
+     * response=200,
+     * description="Operação bem-sucedida",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref="#/components/schemas/Vehicle")
+     * )
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Não autorizado"
+     * )
+     * )
      */
     public function index()
     {
@@ -20,10 +44,31 @@ class VehicleController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     * path="/vehicles",
+     * operationId="createVehicle",
+     * tags={"Veículos"},
+     * summary="Cria um novo veículo",
+     * description="Adiciona um novo veículo ao banco de dados e o retorna.",
+     * security={{"bearerAuth":{}}},
+     * @OA\RequestBody(
+     * required=true,
+     * @OA\JsonContent(ref="#/components/schemas/VehicleRequest")
+     * ),
+     * @OA\Response(
+     * response=201,
+     * description="Veículo criado com sucesso",
+     * @OA\JsonContent(ref="#/components/schemas/Vehicle")
+     * ),
+     * @OA\Response(
+     * response=422,
+     * description="Dados de validação inválidos"
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Não autorizado"
+     * )
+     * )
      */
     public function store(Request $request)
     {
@@ -40,10 +85,34 @@ class VehicleController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Vehicle  $vehicle
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     * path="/vehicles/{vehicle_id}",
+     * operationId="getVehicleById",
+     * tags={"Veículos"},
+     * summary="Obtém um veículo por ID",
+     * description="Retorna um único veículo por ID.",
+     * security={{"bearerAuth":{}}},
+     * @OA\Parameter(
+     * name="vehicle_id",
+     * in="path",
+     * required=true,
+     * @OA\Schema(type="integer"),
+     * description="ID do veículo"
+     * ),
+     * @OA\Response(
+     * response=200,
+     * description="Operação bem-sucedida",
+     * @OA\JsonContent(ref="#/components/schemas/Vehicle")
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="Veículo não encontrado"
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Não autorizado"
+     * )
+     * )
      */
     public function show(Vehicle $vehicle)
     {
@@ -51,11 +120,42 @@ class VehicleController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Vehicle  $vehicle
-     * @return \Illuminate\Http\Response
+     * @OA\Put(
+     * path="/vehicles/{vehicle_id}",
+     * operationId="updateVehicle",
+     * tags={"Veículos"},
+     * summary="Atualiza um veículo existente",
+     * description="Atualiza os dados de um veículo por ID.",
+     * security={{"bearerAuth":{}}},
+     * @OA\Parameter(
+     * name="vehicle_id",
+     * in="path",
+     * required=true,
+     * @OA\Schema(type="integer"),
+     * description="ID do veículo"
+     * ),
+     * @OA\RequestBody(
+     * required=true,
+     * @OA\JsonContent(ref="#/components/schemas/VehicleRequest")
+     * ),
+     * @OA\Response(
+     * response=200,
+     * description="Veículo atualizado com sucesso",
+     * @OA\JsonContent(ref="#/components/schemas/Vehicle")
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="Veículo não encontrado"
+     * ),
+     * @OA\Response(
+     * response=422,
+     * description="Dados de validação inválidos"
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Não autorizado"
+     * )
+     * )
      */
     public function update(Request $request, Vehicle $vehicle)
     {
@@ -72,10 +172,33 @@ class VehicleController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Vehicle  $vehicle
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     * path="/vehicles/{vehicle_id}",
+     * operationId="deleteVehicle",
+     * tags={"Veículos"},
+     * summary="Deleta um veículo",
+     * description="Remove um veículo do banco de dados por ID.",
+     * security={{"bearerAuth":{}}},
+     * @OA\Parameter(
+     * name="vehicle_id",
+     * in="path",
+     * required=true,
+     * @OA\Schema(type="integer"),
+     * description="ID do veículo"
+     * ),
+     * @OA\Response(
+     * response=204,
+     * description="Veículo deletado com sucesso"
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="Veículo não encontrado"
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Não autorizado"
+     * )
+     * )
      */
     public function destroy(Vehicle $vehicle)
     {
