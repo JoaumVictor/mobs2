@@ -3,13 +3,14 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 
+const name = ref("");
 const email = ref("");
 const password = ref("");
 const auth = useAuthStore();
 const router = useRouter();
 
-async function handleLogin() {
-  await auth.login(email.value, password.value);
+async function handleRegister() {
+  await auth.register(name.value, email.value, password.value);
   if (auth.user) {
     router.push("/dashboard");
   }
@@ -17,15 +18,16 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="login">
-    <h1>Login</h1>
+  <div class="register">
+    <h1>Registrar</h1>
+    <input type="text" v-model="name" placeholder="Nome" />
     <input type="email" v-model="email" placeholder="Email" />
     <input type="password" v-model="password" placeholder="Senha" />
-    <button @click="handleLogin" :disabled="auth.loading">Entrar</button>
+    <button @click="handleRegister" :disabled="auth.loading">Registrar</button>
     <p v-if="auth.error">{{ auth.error }}</p>
     <p>
-      Não tem conta?
-      <router-link to="/register">Registre-se aqui</router-link>
+      Já tem conta?
+      <router-link to="/login">Faça login</router-link>
     </p>
   </div>
 </template>
