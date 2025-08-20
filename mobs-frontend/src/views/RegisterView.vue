@@ -18,16 +18,123 @@ async function handleRegister() {
 </script>
 
 <template>
-  <div class="register">
-    <h1>Registrar</h1>
-    <input type="text" v-model="name" placeholder="Nome" />
-    <input type="email" v-model="email" placeholder="Email" />
-    <input type="password" v-model="password" placeholder="Senha" />
-    <button @click="handleRegister" :disabled="auth.loading">Registrar</button>
-    <p v-if="auth.error">{{ auth.error }}</p>
-    <p>
-      Já tem conta?
-      <router-link to="/login">Faça login</router-link>
-    </p>
+  <div class="register-page">
+    <div class="register-card">
+      <img
+        src="https://static.wixstatic.com/media/373a0a_321617b4d7f14ecc8fa9f7484b515974~mv2.png/v1/fill/w_168,h_40,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Prancheta%2023%20cópia%203.png"
+        alt="Logo Mobs2"
+      />
+      <h1>Crie sua conta</h1>
+      <input type="text" v-model="name" placeholder="Nome" />
+      <input type="email" v-model="email" placeholder="Email" />
+      <input type="password" v-model="password" placeholder="Senha" />
+      <button @click="handleRegister" :disabled="auth.loading">
+        Registrar
+      </button>
+      <p v-if="auth.error" class="error-message">{{ auth.error }}</p>
+      <p class="login-link">
+        Já tem conta?
+        <router-link to="/login">Faça login</router-link>
+      </p>
+    </div>
   </div>
 </template>
+
+<style lang="scss">
+@import "../assets/scss/variables";
+
+body {
+  background-image: url("https://static.wixstatic.com/media/373a0a_20d77c2c72ec4956a94bceaebedb380c~mv2.png/v1/fill/w_1271,h_571,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/373a0a_20d77c2c72ec4956a94bceaebedb380c~mv2.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+
+  .register-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 2rem;
+    background-color: $color-white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+
+    img {
+      width: 168px;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: $color-text-dark;
+      margin-bottom: 1.5rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $color-purple-light;
+      }
+    }
+
+    button {
+      width: 100%;
+      padding: 1rem;
+      background-color: $color-highlight-lime;
+      color: $color-text-dark;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+
+      &:hover:not(:disabled) {
+        background-color: darken($color-highlight-lime, 10%);
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        background-color: lighten($color-highlight-lime, 10%);
+      }
+    }
+
+    .error-message {
+      color: $color-error;
+      margin-top: 1rem;
+    }
+
+    .login-link {
+      margin-top: 1.5rem;
+      color: $color-text-dark;
+
+      a {
+        color: $color-purple-dark;
+        text-decoration: none;
+        font-weight: bold;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+</style>
