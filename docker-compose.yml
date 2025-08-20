@@ -1,41 +1,43 @@
-# docker-compose.yml
 version: "3.8"
+
 services:
   app:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    image: laravel-app
-    restart: unless-stopped
+    build: ./mobs-api
+    container_name: laravel_app
     volumes:
-      - ./api:/var/www/html
+      - ./mobs-api:/var/www/html
+    networks:
+      - laravel
+
+  web:
+    image: nginx:stable-alpine
+    container_name: laravel_web
     ports:
-      - "8000:8000"
+      - "8000:80"
+    volumes:
+      - ./mobs-api:/var/www/html
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - db
-    command: >
-      sh -c "while ! nc -z db 5432; do sleep 1; done; php artisan serve --host=0.0.0.0 --port=8000"
+      - app
+    networks:
+      - laravel
 
   db:
-    image: postgres:13
-    restart: unless-stopped
+    image: postgres:16
+    container_name: laravel_db
     environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  telemetry:
-    build:
-      context: ./telemetry
-      dockerfile: Dockerfile
-    image: nestjs-app
-    restart: unless-stopped
-    volumes:
-      - ./telemetry:/usr/src/app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: mobs
     ports:
-      - "3000:3000"
+      - "5432:5432"
+    networks:
+      - laravel
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+networks:
+  laravel:
 
 volumes:
-  postgres_data:
+  pgdata:
