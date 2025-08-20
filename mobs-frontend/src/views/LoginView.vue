@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import background from "../assets/background.avif";
 
 const email = ref("");
 const password = ref("");
@@ -14,15 +15,21 @@ async function handleLogin() {
     router.push("/dashboard");
   }
 }
+
+const backgroundStyle = computed(() => ({
+  backgroundImage: `url(${background})`,
+}));
 </script>
 
 <template>
-  <div class="login-page">
+  <div class="login-page" :style="backgroundStyle">
     <div class="login-card">
-      <img
-        src="https://static.wixstatic.com/media/373a0a_321617b4d7f14ecc8fa9f7484b515974~mv2.png/v1/fill/w_168,h_40,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Prancheta%2023%20cópia%203.png"
-        alt="Logo Mobs2"
-      />
+      <div class="logo-container">
+        <img
+          src="https://static.wixstatic.com/media/373a0a_321617b4d7f14ecc8fa9f7484b515974~mv2.png/v1/fill/w_168,h_40,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Prancheta%2023%20cópia%203.png"
+          alt="Logo Mobs2"
+        />
+      </div>
       <h1>Entrar na sua conta</h1>
       <input type="email" v-model="email" placeholder="Email" />
       <input type="password" v-model="password" placeholder="Senha" />
@@ -39,34 +46,39 @@ async function handleLogin() {
 <style lang="scss">
 @import "../assets/scss/variables";
 
-body {
-  background-image: url("https://static.wixstatic.com/media/373a0a_20d77c2c72ec4956a94bceaebedb380c~mv2.png/v1/fill/w_1271,h_571,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/373a0a_20d77c2c72ec4956a94bceaebedb380c~mv2.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
-}
-
 .login-page {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
 
   .login-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 3rem 2rem;
     background-color: $color-white;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 400px;
 
-    img {
-      width: 168px;
-      margin-bottom: 2rem;
+    .logo-container {
+      background-color: $color-purple-dark;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 60px;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+
+      img {
+        width: 168px;
+      }
     }
 
     h1 {
@@ -77,6 +89,7 @@ body {
 
     input {
       width: 100%;
+      max-width: 340px;
       padding: 0.8rem 1rem;
       margin-bottom: 1rem;
       border: 1px solid #ccc;
