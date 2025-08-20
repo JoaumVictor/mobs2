@@ -36,6 +36,17 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  telemetry:
+    build:
+      context: ./telemetry
+      dockerfile: Dockerfile
+    image: nestjs-app
+    restart: unless-stopped
+    volumes:
+      - ./telemetry:/usr/src/app
+    ports:
+      - "3000:3000"
+
 networks:
   laravel:
 

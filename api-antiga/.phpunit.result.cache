@@ -1,1 +1,0 @@
-{"version":2,"defects":{"Tests\\Feature\\UserRegistrationTest::a_user_can_be_registered":7},"times":{"Tests\\Unit\\ExampleTest::test_that_true_is_true":0.229,"Tests\\Feature\\ExampleTest::test_the_application_returns_a_successful_response":6.117,"Tests\\Feature\\UserRegistrationTest::a_user_can_be_registered":1.56,"Tests\\Feature\\UserRegistrationTest::test_example":1.889}}
