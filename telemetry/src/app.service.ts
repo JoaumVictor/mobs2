@@ -1,12 +1,15 @@
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
-  NotFoundException,
   InternalServerErrorException,
 } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
 import { firstValueFrom } from "rxjs";
 import { isAxiosError } from "axios";
+import { VehicleNotFoundException } from "./common/exceptions/vehicle-not-found.exception";
+import { LaravelCommunicationException } from "./common/exceptions/laravel-communication.exception";
 
 export interface TelemetryData {
   latitude: number;
@@ -37,8 +40,8 @@ export class AppService {
 
   private startTelemetrySimulation() {
     setInterval(() => {
-      Object.keys(this.vehicleTelemetry).forEach((placa) => {
-        this.vehicleTelemetry[placa] = this.generateRandomData();
+      Object.keys(this.vehicleTelemetry).forEach((plate) => {
+        this.vehicleTelemetry[plate] = this.generateRandomData();
       });
       console.log("Telemetry data updated!");
     }, 5000);
@@ -54,12 +57,29 @@ export class AppService {
     };
   }
 
-  private async checkVehicleExists(plate: string): Promise<boolean> {
+  private async checkVehicleExists(
+    plate: string,
+    token: string
+  ): Promise<boolean> {
     try {
       const url = `${this.laravelApiUrl}/api/vehicles/${plate}`;
-      await firstValueFrom(this.httpService.get(url));
+      await firstValueFrom(
+        this.httpService.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      );
       return true;
-    } catch (error) {
+    } catch (error: any) {
+      if (isAxiosError(error)) {
+        console.error("Erro detalhado do Axios:", error.message);
+        if (error.response) {
+          console.error("Dados da Resposta:", error.response.data);
+          console.error("Status da Resposta:", error.response.status);
+        }
+      }
+
       if (
         isAxiosError(error) &&
         error.response &&
@@ -67,19 +87,36 @@ export class AppService {
       ) {
         return false;
       }
+
+      if (
+        isAxiosError(error) &&
+        error.response &&
+        error.response.status === 401
+      ) {
+        throw new HttpException(
+          "Token JWT inválido para a API Laravel.",
+          HttpStatus.UNAUTHORIZED
+        );
+      }
+
+      // if (isAxiosError(error)) {
       throw new InternalServerErrorException(
-        "Erro ao se comunicar com o servidor Laravel."
+        `Erro ao se comunicar com o servidor Laravel. Status: ${error.response?.status}, Dados: ${JSON.stringify(error.response?.data)}`
       );
+      // }
+
+      // throw new LaravelCommunicationException();
     }
   }
 
-  async getTelemetryData(plate: string): Promise<TelemetryData | undefined> {
-    const vehicleExists = await this.checkVehicleExists(plate);
+  async getTelemetryData(
+    plate: string,
+    token: string
+  ): Promise<TelemetryData | undefined> {
+    const vehicleExists = await this.checkVehicleExists(plate, token);
 
     if (!vehicleExists) {
-      throw new NotFoundException(
-        `Veículo com a placa "${plate}" não encontrado.`
-      );
+      throw new VehicleNotFoundException(plate);
     }
 
     if (!this.vehicleTelemetry[plate]) {

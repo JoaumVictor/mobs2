@@ -15,28 +15,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
+const auth_guard_1 = require("./auth.guard");
+const token_not_exist_exception_1 = require("./common/exceptions/token-not-exist.exception");
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
     }
-    getTelemetry(vehicleId) {
-        const telemetryData = this.appService.getTelemetryData(vehicleId);
-        if (!telemetryData) {
-            throw new common_1.HttpException("Telemetry data not found for this vehicle", common_1.HttpStatus.NOT_FOUND);
+    async getTelemetry(plate, authorizationHeader) {
+        const token = authorizationHeader === null || authorizationHeader === void 0 ? void 0 : authorizationHeader.split(" ")[1];
+        if (!token) {
+            throw new token_not_exist_exception_1.TokenNotExistException();
         }
+        const telemetryData = await this.appService.getTelemetryData(plate, token);
         return telemetryData;
     }
 };
 exports.AppController = AppController;
 __decorate([
-    (0, common_1.Get)("/:vehicleId"),
-    __param(0, (0, common_1.Param)("vehicleId")),
+    (0, common_1.Get)("/:plate"),
+    __param(0, (0, common_1.Param)("plate")),
+    __param(1, (0, common_1.Headers)("authorization")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Object)
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "getTelemetry", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)("telemetry"),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __metadata("design:paramtypes", [app_service_1.AppService])
 ], AppController);
 //# sourceMappingURL=app.controller.js.map
