@@ -13,6 +13,9 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:api')->group(function () {
-  Route::apiResource('vehicles', VehicleController::class);
-  Route::get('vehicles/{placa}', [VehicleController::class, 'showByPlaca']);
+  Route::get('/vehicles', [VehicleController::class, 'index']);
+  Route::post('/vehicles', [VehicleController::class, 'store']);
+  Route::get('/vehicles/{placa}', [VehicleController::class, 'show']);
+  Route::put('/vehicles/{placa}', [VehicleController::class, 'update']);
+  Route::delete('/vehicles/{placa}', [VehicleController::class, 'destroy']);
 });

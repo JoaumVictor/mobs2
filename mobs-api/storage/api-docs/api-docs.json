@@ -244,22 +244,22 @@
                 ]
             }
         },
-        "/vehicles/{vehicle_id}": {
+        "/vehicles/{placa}": {
             "get": {
                 "tags": [
                     "Veículos"
                 ],
-                "summary": "Obtém um veículo por ID",
-                "description": "Retorna um único veículo por ID.",
-                "operationId": "getVehicleById",
+                "summary": "Obtém um veículo por placa",
+                "description": "Retorna um único veículo por placa.",
+                "operationId": "getVehicleByPlaca",
                 "parameters": [
                     {
-                        "name": "vehicle_id",
+                        "name": "placa",
                         "in": "path",
-                        "description": "ID do veículo",
+                        "description": "Placa do veículo",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -291,17 +291,17 @@
                 "tags": [
                     "Veículos"
                 ],
-                "summary": "Atualiza um veículo existente",
-                "description": "Atualiza os dados de um veículo por ID.",
-                "operationId": "updateVehicle",
+                "summary": "Atualiza um veículo existente por placa",
+                "description": "Atualiza os dados de um veículo por placa.",
+                "operationId": "updateVehicleByPlaca",
                 "parameters": [
                     {
-                        "name": "vehicle_id",
+                        "name": "placa",
                         "in": "path",
-                        "description": "ID do veículo",
+                        "description": "Placa do veículo",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -346,17 +346,17 @@
                 "tags": [
                     "Veículos"
                 ],
-                "summary": "Deleta um veículo",
-                "description": "Remove um veículo do banco de dados por ID.",
-                "operationId": "deleteVehicle",
+                "summary": "Deleta um veículo por placa",
+                "description": "Remove um veículo do banco de dados por placa.",
+                "operationId": "deleteVehicleByPlaca",
                 "parameters": [
                     {
-                        "name": "vehicle_id",
+                        "name": "placa",
                         "in": "path",
-                        "description": "ID do veículo",
+                        "description": "Placa do veículo",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],

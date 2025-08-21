@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * @OA\Tag(
@@ -12,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
  * description="Endpoints para gerenciar veículos"
  * )
  */
-
 class VehicleController extends Controller
 {
     /**
@@ -86,18 +84,18 @@ class VehicleController extends Controller
 
     /**
      * @OA\Get(
-     * path="/vehicles/{vehicle_id}",
-     * operationId="getVehicleById",
+     * path="/vehicles/{placa}",
+     * operationId="getVehicleByPlaca",
      * tags={"Veículos"},
-     * summary="Obtém um veículo por ID",
-     * description="Retorna um único veículo por ID.",
+     * summary="Obtém um veículo por placa",
+     * description="Retorna um único veículo por placa.",
      * security={{"bearerAuth":{}}},
      * @OA\Parameter(
-     * name="vehicle_id",
+     * name="placa",
      * in="path",
      * required=true,
-     * @OA\Schema(type="integer"),
-     * description="ID do veículo"
+     * @OA\Schema(type="string"),
+     * description="Placa do veículo"
      * ),
      * @OA\Response(
      * response=200,
@@ -114,25 +112,31 @@ class VehicleController extends Controller
      * )
      * )
      */
-    public function show(Vehicle $vehicle)
+    public function show($placa)
     {
+        $vehicle = Vehicle::where('placa', $placa)->first();
+
+        if (!$vehicle) {
+            return response()->json(['message' => 'Veículo não encontrado.'], 404);
+        }
+
         return response()->json($vehicle, 200);
     }
 
     /**
      * @OA\Put(
-     * path="/vehicles/{vehicle_id}",
-     * operationId="updateVehicle",
+     * path="/vehicles/{placa}",
+     * operationId="updateVehicleByPlaca",
      * tags={"Veículos"},
-     * summary="Atualiza um veículo existente",
-     * description="Atualiza os dados de um veículo por ID.",
+     * summary="Atualiza um veículo existente por placa",
+     * description="Atualiza os dados de um veículo por placa.",
      * security={{"bearerAuth":{}}},
      * @OA\Parameter(
-     * name="vehicle_id",
+     * name="placa",
      * in="path",
      * required=true,
-     * @OA\Schema(type="integer"),
-     * description="ID do veículo"
+     * @OA\Schema(type="string"),
+     * description="Placa do veículo"
      * ),
      * @OA\RequestBody(
      * required=true,
@@ -157,8 +161,14 @@ class VehicleController extends Controller
      * )
      * )
      */
-    public function update(Request $request, Vehicle $vehicle)
+    public function update(Request $request, $placa)
     {
+        $vehicle = Vehicle::where('placa', $placa)->first();
+
+        if (!$vehicle) {
+            return response()->json(['message' => 'Veículo não encontrado.'], 404);
+        }
+
         $request->validate([
             'placa' => 'required|string|unique:vehicles,placa,' . $vehicle->id . '|max:255',
             'modelo' => 'required|string|max:255',
@@ -173,18 +183,18 @@ class VehicleController extends Controller
 
     /**
      * @OA\Delete(
-     * path="/vehicles/{vehicle_id}",
-     * operationId="deleteVehicle",
+     * path="/vehicles/{placa}",
+     * operationId="deleteVehicleByPlaca",
      * tags={"Veículos"},
-     * summary="Deleta um veículo",
-     * description="Remove um veículo do banco de dados por ID.",
+     * summary="Deleta um veículo por placa",
+     * description="Remove um veículo do banco de dados por placa.",
      * security={{"bearerAuth":{}}},
      * @OA\Parameter(
-     * name="vehicle_id",
+     * name="placa",
      * in="path",
      * required=true,
-     * @OA\Schema(type="integer"),
-     * description="ID do veículo"
+     * @OA\Schema(type="string"),
+     * description="Placa do veículo"
      * ),
      * @OA\Response(
      * response=204,
@@ -200,8 +210,14 @@ class VehicleController extends Controller
      * )
      * )
      */
-    public function destroy(Vehicle $vehicle)
+    public function destroy($placa)
     {
+        $vehicle = Vehicle::where('placa', $placa)->first();
+
+        if (!$vehicle) {
+            return response()->json(['message' => 'Veículo não encontrado.'], 404);
+        }
+
         $vehicle->delete();
         return response()->json(null, 204);
     }
