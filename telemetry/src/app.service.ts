@@ -48,9 +48,16 @@ export class AppService {
   }
 
   private generateRandomData(): TelemetryData {
+    let lat = -23.55; // (Av. Paulista)
+    let lng = -46.63;
+    lat += (Math.random() - 0.5) * 0.001;
+    lng += (Math.random() - 0.5) * 0.001;
+    lat = Math.min(Math.max(lat, -24.0), -23.3);
+    lng = Math.min(Math.max(lng, -46.9), -46.3);
+
     return {
-      latitude: Math.random() * 180 - 90,
-      longitude: Math.random() * 360 - 180,
+      latitude: lat,
+      longitude: lng,
       velocidade: Math.floor(Math.random() * 120),
       combustivel: Math.floor(Math.random() * 100),
       hora_ultima_atualizacao: new Date().toISOString(),
