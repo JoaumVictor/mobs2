@@ -7,10 +7,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-// Importe a interface JWTSubject aqui
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-// Adicione "implements JWTSubject" aqui
+/**
+ * @OA\Schema(
+ *   schema="User",
+ *   type="object",
+ *   title="Usuário",
+ *   description="Modelo de usuário do sistema",
+ *   @OA\Property(property="id", type="integer", example=1),
+ *   @OA\Property(property="name", type="string", example="Victor F."),
+ *   @OA\Property(property="email", type="string", format="email", example="victor@example.com"),
+ *   @OA\Property(property="created_at", type="string", format="date-time", example="2025-08-20T10:20:30Z"),
+ *   @OA\Property(property="updated_at", type="string", format="date-time", example="2025-08-20T10:20:30Z")
+ * )
+ */
+
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;

@@ -16,6 +16,7 @@ interface AuthResponseRegister {
 
 interface AuthResponseLogin {
   token: string;
+  user: User;
 }
 
 interface AuthState {
@@ -61,8 +62,14 @@ export const useAuthStore = defineStore("auth", {
           `${API_URL}/login`,
           { email, password }
         );
+
         this.token = data.token;
+        this.user = data.user;
+
         localStorage.setItem("authToken", this.token);
+        localStorage.setItem("user", JSON.stringify(this.user));
+
+        axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
       } catch (err: any) {
         this.error =
           err.response?.data?.message ||

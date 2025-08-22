@@ -106,7 +106,7 @@
                     "Autenticação"
                 ],
                 "summary": "Autentica um usuário e retorna um token JWT",
-                "description": "Verifica as credenciais do usuário e, se corretas, gera e retorna um token JWT.",
+                "description": "Verifica as credenciais do usuário e, se corretas, gera e retorna um token JWT junto com os dados do usuário autenticado.",
                 "operationId": "loginUser",
                 "requestBody": {
                     "required": true,
@@ -144,6 +144,9 @@
                                         "token": {
                                             "type": "string",
                                             "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
                                         }
                                     },
                                     "type": "object"
@@ -381,6 +384,36 @@
     },
     "components": {
         "schemas": {
+            "User": {
+                "title": "Usuário",
+                "description": "Modelo de usuário do sistema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Victor F."
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "victor@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-20T10:20:30Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-20T10:20:30Z"
+                    }
+                },
+                "type": "object"
+            },
             "Vehicle": {
                 "title": "Vehicle",
                 "description": "Representação de um veículo",

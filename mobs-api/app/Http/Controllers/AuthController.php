@@ -98,33 +98,34 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     * path="/login",
-     * operationId="loginUser",
-     * tags={"Autenticação"},
-     * summary="Autentica um usuário e retorna um token JWT",
-     * description="Verifica as credenciais do usuário e, se corretas, gera e retorna um token JWT.",
-     * @OA\RequestBody(
-     * required=true,
-     * @OA\JsonContent(
-     * required={"email","password"},
-     * @OA\Property(property="email", type="string", format="email", example="victor@example.com"),
-     * @OA\Property(property="password", type="string", format="password", example="senha123")
-     * )
-     * ),
-     * @OA\Response(
-     * response=200,
-     * description="Login bem-sucedido",
-     * @OA\JsonContent(
-     * @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...")
-     * )
-     * ),
-     * @OA\Response(
-     * response=401,
-     * description="Não autorizado",
-     * @OA\JsonContent(
-     * @OA\Property(property="error", type="string", example="Unauthorized")
-     * )
-     * )
+     *     path="/login",
+     *     operationId="loginUser",
+     *     tags={"Autenticação"},
+     *     summary="Autentica um usuário e retorna um token JWT",
+     *     description="Verifica as credenciais do usuário e, se corretas, gera e retorna um token JWT junto com os dados do usuário autenticado.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="victor@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="senha123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login bem-sucedido",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."),
+     *             @OA\Property(property="user", ref="#/components/schemas/User")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Unauthorized")
+     *         )
+     *     )
      * )
      */
     public function login(Request $request)
@@ -135,6 +136,11 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return response()->json(compact('token'));
+        $user = auth()->user();
+
+        return response()->json([
+            'token' => $token,
+            'user' => $user,
+        ]);
     }
 }
