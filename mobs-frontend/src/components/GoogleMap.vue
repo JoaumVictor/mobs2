@@ -1,10 +1,24 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, onBeforeUnmount, ref, watch } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
+import { getVehicles } from "../services/vehicleService";
+import axios from "axios";
+
+const props = defineProps<{
+  selectedPlate: string | null;
+  showHistory: boolean;
+}>();
 
 const mapEl = ref<HTMLDivElement | null>(null);
 const map = ref<google.maps.Map | null>(null);
 const error = ref<string | null>(null);
+const infoWindows: Record<string, google.maps.InfoWindow> = {};
+
+const markers: Record<string, google.maps.Marker> = {};
+const polylines: Record<string, google.maps.Polyline> = {};
+const positionsHistory: Record<string, google.maps.LatLngLiteral[]> = {};
+
+let intervalId: number | null = null;
 
 onMounted(async () => {
   try {
@@ -14,27 +28,111 @@ onMounted(async () => {
       return;
     }
 
-    // Carrega a lib do Maps
-    const loader = new Loader({
-      apiKey,
-      version: "weekly",
-    });
-
+    const loader = new Loader({ apiKey, version: "weekly" });
     await loader.load();
 
     if (!mapEl.value) return;
 
-    // Cria o mapa
     map.value = new google.maps.Map(mapEl.value, {
-      center: { lat: -23.55, lng: -46.63 }, // SP como default
+      center: { lat: -23.55, lng: -46.63 },
       zoom: 12,
-      // mapId: "SE_TIVER_UM_MAP_ID_OPCIONAL",
       disableDefaultUI: false,
     });
+
+    // buscar veículos
+    const vehicles = await getVehicles();
+
+    // polling de telemetria (Nest)
+    intervalId = window.setInterval(async () => {
+      for (const v of vehicles) {
+        if (!v.plate) continue;
+        try {
+          const { data: telemetry } = await axios.get(
+            `http://localhost:3000/telemetry/${encodeURIComponent(v.plate)}`
+          );
+
+          const pos = { lat: telemetry.lat, lng: telemetry.lng };
+
+          // cria marcador e estruturas
+          if (!markers[v.plate]) {
+            markers[v.plate] = new google.maps.Marker({
+              position: pos,
+              map: map.value!,
+              title: v.plate,
+            });
+
+            positionsHistory[v.plate] = [];
+            polylines[v.plate] = new google.maps.Polyline({
+              path: [],
+              geodesic: true,
+              strokeColor: "#4285F4",
+              strokeOpacity: 1.0,
+              strokeWeight: 2,
+              map: props.showHistory ? map.value! : null, // respeita toggle inicial
+            });
+
+            infoWindows[v.plate] = new google.maps.InfoWindow();
+            markers[v.plate].addListener("click", () => {
+              infoWindows[v.plate].open(map.value, markers[v.plate]);
+            });
+          }
+
+          // atualiza posição do marker
+          markers[v.plate].setPosition(pos);
+
+          // atualiza popup
+          infoWindows[v.plate].setContent(`
+            <div style="min-width:180px">
+              <strong>${v.plate}</strong><br/>
+              ${v.manufacturer} ${v.model} (${v.year})<br/>
+              Vel.: ${telemetry.speed} km/h<br/>
+              Comb.: ${telemetry.fuel}%<br/>
+              <small>Atualizado: ${new Date().toLocaleTimeString()}</small>
+            </div>
+          `);
+
+          // histórico + polyline
+          positionsHistory[v.plate].push(pos);
+          polylines[v.plate].setPath(positionsHistory[v.plate]);
+        } catch (e) {
+          // ignora erros pontuais de telemetria
+        }
+      }
+    }, 5000);
   } catch (e: any) {
     error.value = e?.message ?? "Falha ao carregar o Google Maps.";
   }
 });
+
+onBeforeUnmount(() => {
+  if (intervalId) window.clearInterval(intervalId);
+});
+
+// centralizar no veículo selecionado
+watch(
+  () => props.selectedPlate,
+  (plate) => {
+    if (!plate || !map.value) return;
+    const marker = markers[plate];
+    if (marker) {
+      map.value.panTo(marker.getPosition()!);
+      map.value.setZoom(15);
+      // abre o popup ao focar
+      infoWindows[plate]?.open(map.value, marker);
+    }
+  }
+);
+
+// mostrar/ocultar histórico (polylines)
+watch(
+  () => props.showHistory,
+  (show) => {
+    Object.values(polylines).forEach((poly) => {
+      poly.setMap(show ? map.value : null);
+    });
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -46,7 +144,7 @@ onMounted(async () => {
 
 <style scoped>
 .map-wrapper {
-  height: 100vh; /* ocupa a tela toda para testar */
+  height: 100vh;
   width: 100%;
 }
 .map {

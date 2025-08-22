@@ -51,7 +51,6 @@ const backgroundStyle = computed(() => ({
 
 onMounted(() => {
   auth.loadStateFromStorage();
-  console.log("LoginView mounted", auth.user, auth.token);
   if (auth.user || auth.token) {
     auth.logout();
     toast.info("Você foi deslogado por segurança.");
