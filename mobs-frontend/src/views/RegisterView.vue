@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import background from "../assets/background.avif";
+import { useToast } from "vue-toastification";
 
 const name = ref("");
 const email = ref("");
@@ -10,6 +11,7 @@ const password = ref("");
 const confirmPassword = ref("");
 const auth = useAuthStore();
 const router = useRouter();
+const toast = useToast();
 
 const isEmailInvalid = ref(false);
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -31,15 +33,30 @@ async function handleRegister() {
     return;
   }
   passwordMismatch.value = false;
+
+  toast.info("Fazendo registro...");
   await auth.register(name.value, email.value, password.value);
+
   if (auth.user) {
+    toast.success("Registro concluído!");
     router.push("/dashboard");
+  } else if (auth.error) {
+    toast.error(auth.error);
   }
 }
 
 const backgroundStyle = computed(() => ({
   backgroundImage: `url(${background})`,
 }));
+
+onMounted(() => {
+  auth.loadStateFromStorage();
+  console.log("LoginView mounted", auth.user, auth.token);
+  if (auth.user || auth.token) {
+    auth.logout();
+    toast.info("Você foi deslogado por segurança.");
+  }
+});
 </script>
 
 <template>
@@ -70,8 +87,14 @@ const backgroundStyle = computed(() => ({
         :class="{ 'input-error': passwordMismatch }"
       />
 
-      <button @click="handleRegister" :disabled="auth.loading">
-        Registrar
+      <button
+        @click="handleRegister"
+        class="next-button"
+        :disabled="auth.loading"
+      >
+        <span v-if="auth.loading" class="spinner"></span>
+        <span v-if="auth.loading">Aguarde...</span>
+        <span v-else>Registrar</span>
       </button>
 
       <p v-if="isEmailInvalid" class="error-message">
@@ -197,6 +220,13 @@ const backgroundStyle = computed(() => ({
           text-decoration: underline;
         }
       }
+    }
+
+    .next-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
     }
   }
 

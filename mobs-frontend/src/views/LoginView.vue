@@ -3,17 +3,23 @@ import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import background from "../assets/background.avif";
+import { useToast } from "vue-toastification";
 
 const email = ref("");
 const password = ref("");
 const auth = useAuthStore();
 const router = useRouter();
+const toast = useToast();
 
 async function handleLogin() {
+  toast.info("Fazendo login...");
   await auth.login(email.value, password.value);
+
   if (auth.user) {
-    (window as any).$vTooltip?.show?.("Login concluído!");
+    toast.success("Login concluído!");
     router.push("/dashboard");
+  } else if (auth.error) {
+    toast.error(auth.error);
   }
 }
 
@@ -24,9 +30,10 @@ const backgroundStyle = computed(() => ({
 onMounted(() => {
   auth.loadStateFromStorage();
   console.log("LoginView mounted", auth.user, auth.token);
-  // if (auth.user || auth.token) {
-  //   router.push("/dashboard");
-  // }
+  if (auth.user || auth.token) {
+    auth.logout();
+    toast.info("Você foi deslogado por segurança.");
+  }
 });
 </script>
 
@@ -42,11 +49,7 @@ onMounted(() => {
       <h1>Entrar na sua conta</h1>
       <input type="email" v-model="email" placeholder="Email" />
       <input type="password" v-model="password" placeholder="Senha" />
-      <button
-        @click="handleLogin"
-        :disabled="auth.loading"
-        v-tooltip="auth.loading ? 'Fazendo login...' : 'Clique para entrar'"
-      >
+      <button class="next-button" @click="handleLogin" :disabled="auth.loading">
         <span v-if="auth.loading" class="spinner"></span>
         <span v-if="auth.loading">Entrando...</span>
         <span v-else>Entrar</span>
@@ -161,26 +164,13 @@ onMounted(() => {
         }
       }
     }
-  }
-}
 
-.spinner {
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid $color-purple-dark;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  animation: spin 0.8s linear infinite;
-  display: inline-block;
-  margin-right: 8px;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
+    .next-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+    }
   }
 }
 </style>
