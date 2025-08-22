@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { getVehicles } from "../services/vehicleService";
-
-interface Vehicle {
-  id: number;
-  plate: string;
-  model: string;
-  manufacturer: string;
-  year: number;
-}
+import type { Vehicle } from "../types/vehicle";
 
 const props = defineProps<{
   open: boolean;
@@ -27,14 +20,17 @@ const error = ref<string | null>(null);
 
 const filteredVehicles = computed(() =>
   vehicles.value.filter((v) =>
-    v.plate?.toLowerCase().includes(search.value?.toLowerCase())
+    v.placa?.toLowerCase().includes(search.value?.toLowerCase())
   )
 );
 
 onMounted(async () => {
   try {
     error.value = null;
-    vehicles.value = await getVehicles();
+    console.log("Fetching vehicles...");
+    const result = await getVehicles();
+    console.log(result);
+    vehicles.value = result;
   } catch (e: any) {
     error.value = e?.response?.data?.message || "Falha ao carregar veículos";
   }
@@ -71,9 +67,9 @@ onMounted(async () => {
         <li
           v-for="v in filteredVehicles"
           :key="v.id"
-          @click="emit('update:selectedPlate', v.plate)"
+          @click="emit('update:selectedPlate', v.placa)"
         >
-          {{ v.plate }} — {{ v.model }}
+          {{ v.placa }} — {{ v.modelo }}
         </li>
       </ul>
     </aside>

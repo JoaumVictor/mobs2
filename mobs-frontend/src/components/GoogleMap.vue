@@ -3,6 +3,7 @@ import { onMounted, onBeforeUnmount, ref, watch } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
 import { getVehicles } from "../services/vehicleService";
 import axios from "axios";
+import type { Vehicle } from "../types/vehicle";
 
 const props = defineProps<{
   selectedPlate: string | null;
@@ -39,27 +40,32 @@ onMounted(async () => {
       disableDefaultUI: false,
     });
 
-    const vehicles = await getVehicles();
+    const vehicles: Vehicle[] = await getVehicles();
 
     intervalId = window.setInterval(async () => {
       for (const v of vehicles) {
-        if (!v.plate) continue;
+        // if (!v.plate) continue;
         try {
           const { data: telemetry } = await axios.get(
-            `http://localhost:3000/telemetry/${encodeURIComponent(v.plate)}`
+            `http://localhost:3000/telemetry/${encodeURIComponent(v.placa)}`
           );
 
-          const pos = { lat: telemetry.lat, lng: telemetry.lng };
+          console.log("Atualizando posição:", telemetry);
 
-          if (!markers[v.plate]) {
-            markers[v.plate] = new google.maps.Marker({
+          const pos = {
+            lat: Number(telemetry.latitude),
+            lng: Number(telemetry.longitude),
+          };
+
+          if (!markers[v.placa]) {
+            markers[v.placa] = new google.maps.Marker({
               position: pos,
               map: map.value!,
-              title: v.plate,
+              title: v.placa,
             });
 
-            positionsHistory[v.plate] = [];
-            polylines[v.plate] = new google.maps.Polyline({
+            positionsHistory[v.placa] = [];
+            polylines[v.placa] = new google.maps.Polyline({
               path: [],
               geodesic: true,
               strokeColor: "#4285F4",
@@ -68,26 +74,26 @@ onMounted(async () => {
               map: props.showHistory ? map.value! : null,
             });
 
-            infoWindows[v.plate] = new google.maps.InfoWindow();
-            markers[v.plate].addListener("click", () => {
-              infoWindows[v.plate].open(map.value, markers[v.plate]);
+            infoWindows[v.placa] = new google.maps.InfoWindow();
+            markers[v.placa].addListener("click", () => {
+              infoWindows[v.placa].open(map.value, markers[v.placa]);
             });
           }
 
-          markers[v.plate].setPosition(pos);
+          markers[v.placa].setPosition(pos);
 
-          infoWindows[v.plate].setContent(`
+          infoWindows[v.placa].setContent(`
             <div style="min-width:180px">
-              <strong>${v.plate}</strong><br/>
-              ${v.manufacturer} ${v.model} (${v.year})<br/>
+              <strong>${v.placa}</strong><br/>
+              ${v.fabricante} ${v.modelo} (${v.ano})<br/>
               Vel.: ${telemetry.speed} km/h<br/>
               Comb.: ${telemetry.fuel}%<br/>
               <small>Atualizado: ${new Date().toLocaleTimeString()}</small>
             </div>
           `);
 
-          positionsHistory[v.plate].push(pos);
-          polylines[v.plate].setPath(positionsHistory[v.plate]);
+          positionsHistory[v.placa].push(pos);
+          polylines[v.placa].setPath(positionsHistory[v.placa]);
         } catch (e) {
           // preciso tratar os erros...
         }
