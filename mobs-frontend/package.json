@@ -12,6 +12,7 @@
     "@googlemaps/js-api-loader": "^1.16.10",
     "@vueuse/core": "^13.7.0",
     "axios": "^1.11.0",
+    "floating-vue": "^5.2.2",
     "pinia": "^3.0.3",
     "sass": "^1.90.0",
     "vue": "^3.5.18",

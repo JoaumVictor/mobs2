@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import background from "../assets/background.avif";
@@ -12,6 +12,7 @@ const router = useRouter();
 async function handleLogin() {
   await auth.login(email.value, password.value);
   if (auth.user) {
+    (window as any).$vTooltip?.show?.("Login concluído!");
     router.push("/dashboard");
   }
 }
@@ -19,6 +20,14 @@ async function handleLogin() {
 const backgroundStyle = computed(() => ({
   backgroundImage: `url(${background})`,
 }));
+
+onMounted(() => {
+  auth.loadStateFromStorage();
+  console.log("LoginView mounted", auth.user, auth.token);
+  // if (auth.user || auth.token) {
+  //   router.push("/dashboard");
+  // }
+});
 </script>
 
 <template>
@@ -33,7 +42,15 @@ const backgroundStyle = computed(() => ({
       <h1>Entrar na sua conta</h1>
       <input type="email" v-model="email" placeholder="Email" />
       <input type="password" v-model="password" placeholder="Senha" />
-      <button @click="handleLogin" :disabled="auth.loading">Entrar</button>
+      <button
+        @click="handleLogin"
+        :disabled="auth.loading"
+        v-tooltip="auth.loading ? 'Fazendo login...' : 'Clique para entrar'"
+      >
+        <span v-if="auth.loading" class="spinner"></span>
+        <span v-if="auth.loading">Entrando...</span>
+        <span v-else>Entrar</span>
+      </button>
       <p v-if="auth.error" class="error-message">{{ auth.error }}</p>
       <p class="signup-link">
         Não tem conta?
@@ -144,6 +161,26 @@ const backgroundStyle = computed(() => ({
         }
       }
     }
+  }
+}
+
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid $color-purple-dark;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>
