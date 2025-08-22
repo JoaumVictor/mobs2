@@ -81,6 +81,16 @@ VITE_GOOGLE_MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY
 docker-compose up --build
 ```
 
+## Criando as Tabelas (Laravel)
+
+Após subir os containers com Docker, rode o seguinte comando dentro do container `app` do Laravel para criar todas as tabelas:
+
+```bash
+docker-compose exec app php artisan migrate
+```
+
+e pronto, aplicação no docker e tabelas criadas!
+
 4. O frontend estará disponível em `http://localhost:5173`.
 5. Laravel em `http://localhost:8000`.
 6. NestJS em `http://localhost:3000`.
