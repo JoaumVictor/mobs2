@@ -44,13 +44,10 @@ onMounted(async () => {
 
     intervalId = window.setInterval(async () => {
       for (const v of vehicles) {
-        // if (!v.plate) continue;
         try {
           const { data: telemetry } = await axios.get(
             `http://localhost:3000/telemetry/${encodeURIComponent(v.placa)}`
           );
-
-          console.log("Atualizando posição:", telemetry);
 
           const pos = {
             lat: Number(telemetry.latitude),
