@@ -44,7 +44,7 @@ O MOBS2 é uma aplicação completa para visualização de veículos em tempo re
 ```env
 APP_NAME=Laravel
 APP_ENV=local
-APP_KEY=base64:kvKidUEg0NknL/kiPYzOooylg4scXp0OflFtVopVTbY=
+APP_KEY=base64:SUA_CHAVE_AQUI=
 APP_DEBUG=true
 APP_TIMEZONE=UTC
 APP_URL=http://localhost:8000
@@ -56,7 +56,7 @@ DB_DATABASE=mobs
 DB_USERNAME=postgres
 DB_PASSWORD=secret
 
-JWT_SECRET=bzFdVa0zz1VzkuynqX9n39sSfcCmLHxsahIZVhLXrcPWzHAorrtTg77cSNTlxh4S
+JWT_SECRET=GERAR_USANDO_O_COMANDO_ARTISAN_JWT:SECRET
 ```
 
 ### NestJS (.env)
@@ -113,14 +113,26 @@ Essa rota espera receber o **Bearer token** do usuário autenticado via Laravel 
 
 ### Testes
 
-Os testes foram implementados para o backend Laravel.
+Observação:o teste deve ser rodado dentro do docker pra poder ter acesso ao banco de dados!
 Para rodar os testes do Laravel, use o comando:
 
 ```
 docker-compose exec app php artisan test
 ```
 
-o teste deve ser rodado dentro do docker pra poder ter acesso ao banco de dados!
+Para rodar os testes do Nest:
+
+```
+cd ./telemetry
+```
+
+use o comando:
+
+```
+npm run test
+```
+
+❗Os testes do Frontend não foram finalizados! Mas estão presentes ( inacabados ) na pasta de tests!
 
 ### Observações
 

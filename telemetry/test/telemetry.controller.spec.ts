@@ -24,7 +24,6 @@ describe("AppController with JWT", () => {
   const mockAuthGuard = {
     canActivate: (context: ExecutionContext) => {
       const req = context.switchToHttp().getRequest();
-      // Força sempre um token válido no teste
       req.headers.authorization = "Bearer fake-token";
       return true;
     },
