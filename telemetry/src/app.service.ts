@@ -99,13 +99,7 @@ export class AppService {
         );
       }
 
-      // if (isAxiosError(error)) {
-      throw new InternalServerErrorException(
-        `Erro ao se comunicar com o servidor Laravel. Status: ${error.response?.status}, Dados: ${JSON.stringify(error.response?.data)}`
-      );
-      // }
-
-      // throw new LaravelCommunicationException();
+      throw new LaravelCommunicationException();
     }
   }
 

@@ -15,7 +15,6 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      // opcional: deslogar e redirecionar
       // const { useAuthStore } = await import("../stores/auth");
       // useAuthStore().logout();
       // window.location.href = "/login";

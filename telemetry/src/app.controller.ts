@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  HttpException,
-  HttpStatus,
-  UseGuards,
-  Headers, // Importamos Headers
-} from "@nestjs/common";
+import { Controller, Get, Param, UseGuards, Headers } from "@nestjs/common";
 import { AppService, TelemetryData } from "./app.service";
 import { AuthGuard } from "./auth.guard";
 import { TokenNotExistException } from "./common/exceptions/token-not-exist.exception";

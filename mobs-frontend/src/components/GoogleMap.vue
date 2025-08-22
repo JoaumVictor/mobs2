@@ -39,10 +39,8 @@ onMounted(async () => {
       disableDefaultUI: false,
     });
 
-    // buscar veículos
     const vehicles = await getVehicles();
 
-    // polling de telemetria (Nest)
     intervalId = window.setInterval(async () => {
       for (const v of vehicles) {
         if (!v.plate) continue;
@@ -53,7 +51,6 @@ onMounted(async () => {
 
           const pos = { lat: telemetry.lat, lng: telemetry.lng };
 
-          // cria marcador e estruturas
           if (!markers[v.plate]) {
             markers[v.plate] = new google.maps.Marker({
               position: pos,
@@ -68,7 +65,7 @@ onMounted(async () => {
               strokeColor: "#4285F4",
               strokeOpacity: 1.0,
               strokeWeight: 2,
-              map: props.showHistory ? map.value! : null, // respeita toggle inicial
+              map: props.showHistory ? map.value! : null,
             });
 
             infoWindows[v.plate] = new google.maps.InfoWindow();
@@ -77,10 +74,8 @@ onMounted(async () => {
             });
           }
 
-          // atualiza posição do marker
           markers[v.plate].setPosition(pos);
 
-          // atualiza popup
           infoWindows[v.plate].setContent(`
             <div style="min-width:180px">
               <strong>${v.plate}</strong><br/>
@@ -91,11 +86,10 @@ onMounted(async () => {
             </div>
           `);
 
-          // histórico + polyline
           positionsHistory[v.plate].push(pos);
           polylines[v.plate].setPath(positionsHistory[v.plate]);
         } catch (e) {
-          // ignora erros pontuais de telemetria
+          // preciso tratar os erros...
         }
       }
     }, 5000);
@@ -108,7 +102,6 @@ onBeforeUnmount(() => {
   if (intervalId) window.clearInterval(intervalId);
 });
 
-// centralizar no veículo selecionado
 watch(
   () => props.selectedPlate,
   (plate) => {
@@ -117,13 +110,11 @@ watch(
     if (marker) {
       map.value.panTo(marker.getPosition()!);
       map.value.setZoom(15);
-      // abre o popup ao focar
       infoWindows[plate]?.open(map.value, marker);
     }
   }
 );
 
-// mostrar/ocultar histórico (polylines)
 watch(
   () => props.showHistory,
   (show) => {
