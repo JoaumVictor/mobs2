@@ -16,6 +16,7 @@ const config_1 = require("@nestjs/config");
 const rxjs_1 = require("rxjs");
 const axios_2 = require("axios");
 const vehicle_not_found_exception_1 = require("./common/exceptions/vehicle-not-found.exception");
+const laravel_communication_exception_1 = require("./common/exceptions/laravel-communication.exception");
 let AppService = class AppService {
     constructor(httpService, configService) {
         this.httpService = httpService;
@@ -37,16 +38,21 @@ let AppService = class AppService {
         }, 5000);
     }
     generateRandomData() {
+        let lat = -23.55;
+        let lng = -46.63;
+        lat += (Math.random() - 0.5) * 0.001;
+        lng += (Math.random() - 0.5) * 0.001;
+        lat = Math.min(Math.max(lat, -24.0), -23.3);
+        lng = Math.min(Math.max(lng, -46.9), -46.3);
         return {
-            latitude: Math.random() * 180 - 90,
-            longitude: Math.random() * 360 - 180,
+            latitude: lat,
+            longitude: lng,
             velocidade: Math.floor(Math.random() * 120),
             combustivel: Math.floor(Math.random() * 100),
             hora_ultima_atualizacao: new Date().toISOString(),
         };
     }
     async checkVehicleExists(plate, token) {
-        var _a, _b;
         try {
             const url = `${this.laravelApiUrl}/api/vehicles/${plate}`;
             await (0, rxjs_1.firstValueFrom)(this.httpService.get(url, {
@@ -74,7 +80,7 @@ let AppService = class AppService {
                 error.response.status === 401) {
                 throw new common_1.HttpException("Token JWT inválido para a API Laravel.", common_1.HttpStatus.UNAUTHORIZED);
             }
-            throw new common_1.InternalServerErrorException(`Erro ao se comunicar com o servidor Laravel. Status: ${(_a = error.response) === null || _a === void 0 ? void 0 : _a.status}, Dados: ${JSON.stringify((_b = error.response) === null || _b === void 0 ? void 0 : _b.data)}`);
+            throw new laravel_communication_exception_1.LaravelCommunicationException();
         }
     }
     async getTelemetryData(plate, token) {
