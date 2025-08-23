@@ -15,6 +15,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+  },
+  "exclude": ["node_modules", "test", "dist"],
 }
