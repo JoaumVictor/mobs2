@@ -71,6 +71,8 @@ LARAVEL_API_URL=http://web
 VITE_GOOGLE_MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY
 ```
 
+# Iniciando o projeto 🚀
+
 ## Execução via Docker
 
 1. Certifique-se de que o Docker e Docker Compose estão instalados.
@@ -83,13 +85,15 @@ docker-compose up --build
 
 ## Criando as Tabelas (Laravel)
 
-Após subir os containers com Docker, rode o seguinte comando dentro do container `app` do Laravel para criar todas as tabelas:
+Após subir os containers com Docker, rode o seguinte comando no seu terminal pra configurar seu Laravel:
 
 ```bash
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan jwt:secret
 docker-compose exec app php artisan migrate
 ```
 
-e pronto, aplicação no docker e tabelas criadas!
+e pronto, aplicação no docker, APP_KEY gerado, JWT gerado e tabelas criadas!
 
 4. O frontend estará disponível em `http://localhost:5173`.
 5. Laravel em `http://localhost:8000`.
